@@ -38,7 +38,7 @@ public class ExceptionUseCases {
             log.error("process fails due to : ", e);
             result.append(e.getMessage()).append(", ");
             // abort business process due to external exception
-            throw new BusinessDomainException("fail calling external library", e);
+            throw new BusinessDomainException("fail calling external library due to : "+e.getMessage(), e);
         } finally { // this block shall never contain return or throws statements : https://www.baeldung.com/java-finally-keyword#common-pitfalls
             log.info("ensure resources are closed, ");
             result.append("modify result in finally.");

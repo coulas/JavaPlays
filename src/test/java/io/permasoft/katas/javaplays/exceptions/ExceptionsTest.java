@@ -135,7 +135,7 @@ public class ExceptionsTest {
             AtomicReference<String> result = new AtomicReference<>();
             should.assertThatCode(() -> result.set(useCases.failExternalLibraryException(true, message).toString()))
                     .isInstanceOf(BusinessDomainException.class)
-                    .hasMessageContaining("fail calling external library");
+                    .hasMessageContaining("fail calling external library due to : " + message);
             should.assertThat(out.getAll().split(System.lineSeparator()))
                     .usingComparatorForType(ExceptionsTest::findRegexInActual, String.class)
                     .containsSubsequence(
@@ -148,6 +148,32 @@ public class ExceptionsTest {
             should.assertThat(result.get()).isNull();
         }
 
+        @Test
+        @DisplayName("2.3. execute with external library exception, fail due to it and handle failure")
+        void handling_failure_handling_with_exception(CapturedOutput out) {
+            String message = "process me";
+            boolean doThrow = true;
+            AtomicReference<String> result = new AtomicReference<>();
+            //useCases.failExternalLibraryException(true, message).toString()
+            should.assertThatCode(() -> result.set(new ExceptionEndPoint().throwEarlyCatchLate(doThrow, message)))
+                    .doesNotThrowAnyException();
+            should.assertThat(out.getAll().split(System.lineSeparator()))
+                    .usingComparatorForType(ExceptionsTest::findRegexInActual, String.class)
+                    .containsSubsequence(
+                            "DEBUG.*start processing throwEarlyCatchLate with doThrow \\? " + doThrow + ", with message : " + message,
+                            "INFO.*call external ressource",
+                            "ERROR.*" + message,
+                            "ERROR.*process fails",
+                            "YourUseOfMyLibraryIsInvalid: " + message,
+                            "INFO.*ensure resources are closed",
+                            "ERROR.*throwEarlyCatchLate failed with doThrow \\? " + doThrow + ", with message : " + message,
+                            "ERROR.*throwEarlyCatchLate failed due to :",
+                            "BusinessDomainException: fail calling external library due to : " + message,
+                            "Caused by:.*YourUseOfMyLibraryIsInvalid: " + message
+                    );
+            should.assertThat(result.get())
+                    .isEqualTo("Error 500 due to : fail calling external library due to : " + message);
+        }
     }
     // method that throws a child unchecked exception with catch on parent and child
     // method using try with ressources and suppressed exceptions
