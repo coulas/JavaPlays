@@ -1,7 +1,13 @@
 package io.permasoft.katas.javaplays.exceptions;
 
+import io.permasoft.katas.javaplays.exceptions.externallibrary.YourUseOfMyLibraryIsInvalid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class ExceptionUseCases {
     private static final Logger log = LoggerFactory.getLogger(ExceptionUseCases.class);
@@ -44,5 +50,25 @@ public class ExceptionUseCases {
             result.append("modify result in finally.");
         }
         // unreachable statement return result.append("return from end.").toString();
+    }
+
+    public String failOnMissingRessources() {
+
+        try (AutoCloseable file = new FailingResourceClosing()) {
+            this.externalLib.throwChecked("error in try");
+        } catch (Exception e) {
+            log.error("process failed due to ", e);
+            throw new BusinessDomainException("wrap checked in unchecked due to "+e.getMessage(), e);
+        } finally {
+            log.debug("You don't need to close autocloseable resources.");
+        }
+        return "end of method";
+    }
+    class FailingResourceClosing implements AutoCloseable {
+        @Override
+        public void close() throws Exception {
+            throw new IOException("error at closing time");
+        }
+
     }
 }

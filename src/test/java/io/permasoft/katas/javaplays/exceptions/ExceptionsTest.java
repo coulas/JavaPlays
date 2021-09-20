@@ -1,5 +1,6 @@
 package io.permasoft.katas.javaplays.exceptions;
 
+import io.permasoft.katas.javaplays.exceptions.externallibrary.YourUseOfMyLibraryIsInvalid;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 @ExtendWith({SoftAssertionsExtension.class, OutputCaptureExtension.class})
 @TestClassOrder(ClassOrderer.DisplayName.class)
+@TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ExceptionsTest {
     private final ExceptionUseCases useCases = new ExceptionUseCases();
     // SUT  : System Under Test
@@ -175,13 +178,19 @@ public class ExceptionsTest {
                     .isEqualTo("Error 500 due to : fail calling external library due to : " + message);
         }
     }
-    // method that throws a child unchecked exception with catch on parent and child
-    // method using try with ressources and suppressed exceptions
-    // method that try str.append b4; call; str.append after catch (e) {str.append caught e; return} finally str.append finaly stil appending text at each step calling method that throws unchecked
-    // method that try str.append b4; call; str.append after catch (e) {str.append caught e; return} finally str.append finaly stil appending text at each step calling method that don't throw
 
-    // cascading exception catch (cause) throw new Ex("msg", cause) with three ex (Two causes) and neutrel methods
-
+    @Test
+    @DisplayName("3. autoclosable closes nicely their ressource that throw exception and hide closing exception has suppressed in the exception's data structure")
+    void try_with_ressources() {
+        should.assertThatCode(() -> useCases.failOnMissingRessources())
+                .isInstanceOf(BusinessDomainException.class)
+                .hasMessageContaining("wrap checked in unchecked due to error in try")
+                .hasNoSuppressedExceptions()
+                .getCause()
+                .isInstanceOf(YourUseOfMyLibraryIsInvalid.class)
+                .hasMessageContaining("error in try")
+                .hasSuppressedException(new IOException("error at closing time"));
+    }
 
     private static int findRegexInActual(String actual, String expected) {
         Pattern p = Pattern.compile(expected);
