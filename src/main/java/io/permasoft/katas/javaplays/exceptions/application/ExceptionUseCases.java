@@ -1,24 +1,30 @@
-package io.permasoft.katas.javaplays.exceptions;
+package io.permasoft.katas.javaplays.exceptions.application;
 
-import io.permasoft.katas.javaplays.exceptions.externallibrary.YourUseOfMyLibraryIsInvalid;
+import io.permasoft.katas.javaplays.exceptions.domain.BusinessDomainException;
+import io.permasoft.katas.javaplays.exceptions.persistence.ExceptionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
+@Service
 public class ExceptionUseCases {
     private static final Logger log = LoggerFactory.getLogger(ExceptionUseCases.class);
 
-    ExceptionProvider externalLib = new ExceptionProvider();
+    private ExceptionStore externalLib;
 
-    public StringBuilder surviveExternalLibraryException(boolean withException, String message) {
+    @Autowired
+    public ExceptionUseCases(ExceptionStore externalLib) {
+        this.externalLib = externalLib;
+    }
+
+    public StringBuilder surviveExternalLibraryException(int positiveId) {
         StringBuilder result = new StringBuilder();
         try {
             log.info("call external ressource");
-            result.append(externalLib.conditionalThrow(withException, message)).append(", ");
+            result.append(externalLib.conditionalThrow(positiveId)).append(", ");
             log.info("after call");
             return result.append("return from try, ");
         } catch (Exception e) {
@@ -33,11 +39,11 @@ public class ExceptionUseCases {
         // unreachable statement return result.append("return from end.").toString();
     }
 
-    public StringBuilder failExternalLibraryException(boolean withException, String message) {
+    public StringBuilder failExternalLibraryException(int positiveId) {
         StringBuilder result = new StringBuilder();
         try {
             log.info("call external ressource");
-            result.append(externalLib.conditionalThrow(withException, message)).append(", ");
+            result.append(externalLib.conditionalThrow(positiveId)).append(", ");
             log.info("after call");
             return result.append("return from try, ");
         } catch (Exception e) {
@@ -55,7 +61,7 @@ public class ExceptionUseCases {
     public String failOnMissingRessources() {
 
         try (AutoCloseable file = new FailingResourceClosing()) {
-            this.externalLib.throwChecked("error in try");
+            this.externalLib.throwChecked();
         } catch (Exception e) {
             log.error("process failed due to ", e);
             throw new BusinessDomainException("wrap checked in unchecked due to "+e.getMessage(), e);

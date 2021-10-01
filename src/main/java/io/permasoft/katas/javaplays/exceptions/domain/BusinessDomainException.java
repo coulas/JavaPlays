@@ -1,4 +1,4 @@
-package io.permasoft.katas.javaplays.exceptions;
+package io.permasoft.katas.javaplays.exceptions.domain;
 
 public class BusinessDomainException extends RuntimeException {
     public BusinessDomainException(String message) {
