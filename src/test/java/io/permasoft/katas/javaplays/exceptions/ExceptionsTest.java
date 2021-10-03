@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 @ExtendWith({SoftAssertionsExtension.class, OutputCaptureExtension.class})
 @TestClassOrder(ClassOrderer.DisplayName.class)
-public class ExceptionsTest {
+class ExceptionsTest {
     private final ExceptionStore store = new ExceptionStore(new ExceptionDao(){});
     private final ExceptionUseCases useCases = new ExceptionUseCases(store);
     private final ExceptionEndPoint endPoint = new ExceptionEndPoint(useCases);
@@ -47,7 +47,7 @@ public class ExceptionsTest {
         @Test
         @DisplayName("2. Checked exception are child of Exception that describe fatal library condition that business code must catch so they can throw their own unchecked business related exception and avoid ugly method signatures.")
         void checkedExceptions() {
-            assertThatCode(() -> store.throwChecked())
+            assertThatCode(store::throwChecked)
                     .isInstanceOf(Exception.class)
                     .hasMessageContaining("-1")
                     .hasMessageContaining("is invalid");
@@ -56,7 +56,7 @@ public class ExceptionsTest {
         @Test
         @DisplayName("3. Unchecked exception are child of RuntimeException that describe fatal use case condition that business code shall not catch.")
         void uncheckedExceptions() {
-            assertThatCode(() -> store.throwUnchecked())
+            assertThatCode(store::throwUnchecked)
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("-1")
                     .hasMessageContaining("is illegal");
@@ -65,7 +65,7 @@ public class ExceptionsTest {
         @Test
         @DisplayName("4. Errors are child of throwable that describe fatal running conditions that applications shall not catch.")
         void errors() {
-            assertThatCode(() -> store.throwError())
+            assertThatCode(store::throwError)
                     .isInstanceOf(Error.class)
                     .hasMessageContaining("out of memory");
         }
@@ -176,7 +176,7 @@ public class ExceptionsTest {
         @Test
         @DisplayName("1. autoclosable closes nicely their ressource that throw exception and hide closing exception has suppressed in the exception's data structure. So you may have a resource leak or not...")
         void try_with_ressources() {
-            should.assertThatCode(() -> useCases.failOnMissingRessources())
+            should.assertThatCode(useCases::failOnMissingRessources)
                     .isInstanceOf(BusinessDomainException.class)
                     .hasMessageContaining("wrap checked in unchecked")
                     .hasMessageContaining("-1")
