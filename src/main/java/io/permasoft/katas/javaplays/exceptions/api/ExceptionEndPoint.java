@@ -1,6 +1,7 @@
 package io.permasoft.katas.javaplays.exceptions.api;
 
 import io.permasoft.katas.javaplays.exceptions.application.ExceptionUseCases;
+import io.permasoft.katas.javaplays.exceptions.configuration.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,14 @@ public class ExceptionEndPoint {
             result = "Error 500 due to : " + any.getMessage();
         }
         return result;
+    }
+
+    @Logging
+    public String endPointFailsHandledByFramework() {
+        return useCases.failExternalLibraryException(-1).toString();
+    }
+    @Logging
+    public String endPointSucceedsHandledByFramework() {
+        return useCases.failExternalLibraryException(1).toString();
     }
 }

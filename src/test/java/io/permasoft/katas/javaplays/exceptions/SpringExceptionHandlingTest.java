@@ -1,5 +1,7 @@
 package io.permasoft.katas.javaplays.exceptions;
 
+import io.permasoft.katas.javaplays.exceptions.api.ExceptionEndPoint;
+import io.permasoft.katas.javaplays.exceptions.domain.BusinessDomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class SpringExceptionHandlingTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
@@ -20,9 +23,11 @@ class SpringExceptionHandlingTest {
         contextRunner
                 .withUserConfiguration(SpringSampleApplication.class)
                 .run(applicationContext -> {
-                            log.warn("this run hasn't failed as expected : "+ applicationContext.getStartupFailure());
+                            log.warn("this run hasn't failed as expected : " + applicationContext.getStartupFailure());
                             assertThat(applicationContext)
                                     .hasNotFailed();
+                            ExceptionEndPoint endPoint = applicationContext.getBean(ExceptionEndPoint.class);
+                            endPoint.endPointSucceedsHandledByFramework();
                         }
                 );
     }
@@ -49,4 +54,24 @@ class SpringExceptionHandlingTest {
                         }
                 );
     }
+
+    @Test
+    @DisplayName("raw springBootApplication works")
+    void without_added_profiles_it_just_works2() {
+        // TODO move it to a usual SpringBootTest
+        contextRunner
+                .withUserConfiguration(SpringSampleApplication.class)
+                .run(applicationContext -> {
+                            log.warn("this run hasn't failed as expected : " + applicationContext.getStartupFailure());
+                            assertThat(applicationContext)
+                                    .hasNotFailed();
+                            ExceptionEndPoint endPoint = applicationContext.getBean(ExceptionEndPoint.class);
+                            endPoint.endPointSucceedsHandledByFramework();
+                            assertThatCode(() -> endPoint.endPointFailsHandledByFramework())
+                                    .isInstanceOf(BusinessDomainException.class)
+                                    .hasMessageFindingMatch("Negative.*invalid");
+                        }
+                );
+    }
+
 }

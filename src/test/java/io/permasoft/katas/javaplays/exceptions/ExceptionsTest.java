@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 @ExtendWith({SoftAssertionsExtension.class, OutputCaptureExtension.class})
-@TestClassOrder(ClassOrderer.DisplayName.class)
+// Too Early : @TestClassOrder(ClassOrderer.DisplayName.class)
 class ExceptionsTest {
     private final ExceptionStore store = new ExceptionStore(new ExceptionDao(){});
     private final ExceptionUseCases useCases = new ExceptionUseCases(store);
@@ -83,7 +83,7 @@ class ExceptionsTest {
                     .doesNotThrowAnyException();
             should.assertThat(out.getAll().split(System.lineSeparator()))
                     .usingComparatorForType(ExceptionsTest::findRegexInActual, String.class)
-                    .containsExactly(
+                    .containsSubsequence(
                             "INFO.*call external ressource",
                             "INFO.*after call",
                             "INFO.*ensure resources are closed");
