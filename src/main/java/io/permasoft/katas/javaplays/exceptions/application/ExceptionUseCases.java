@@ -20,7 +20,7 @@ public class ExceptionUseCases {
         this.externalLib = externalLib;
     }
 
-    public StringBuilder surviveExternalLibraryException(int positiveId) {
+    public StringBuilder warnUseCaseWorksDespiteException(int positiveId) {
         StringBuilder result = new StringBuilder();
         try {
             log.info("call external ressource");
@@ -39,7 +39,7 @@ public class ExceptionUseCases {
         // unreachable statement return result.append("return from end.").toString();
     }
 
-    public StringBuilder failExternalLibraryException(int positiveId) {
+    public StringBuilder errorUseCaseFailsDueToException(int positiveId) {
         StringBuilder result = new StringBuilder();
         try {
             log.info("call external ressource");
@@ -47,7 +47,7 @@ public class ExceptionUseCases {
             log.info("after call");
             return result.append("return from try, ");
         } catch (Exception e) {
-            log.error("process fails due to : ", e);
+            log.error("process fails due to : {}", e.getMessage());
             result.append(e.getMessage()).append(", ");
             // abort business process due to external exception
             throw new BusinessDomainException("fail calling external library due to : "+e.getMessage(), e);

@@ -79,7 +79,7 @@ class ExceptionsTest {
         @DisplayName("1.1. execute without external library exception and with recovery handling")
         void recovery_handling_without_exception(CapturedOutput out) {
             AtomicReference<String> result = new AtomicReference<>();
-            should.assertThatCode(() -> result.set(useCases.surviveExternalLibraryException(1).toString()))
+            should.assertThatCode(() -> result.set(useCases.warnUseCaseWorksDespiteException(1).toString()))
                     .doesNotThrowAnyException();
             should.assertThat(out.getAll().split(System.lineSeparator()))
                     .usingComparatorForType(ExceptionsTest::findRegexInActual, String.class)
@@ -96,7 +96,7 @@ class ExceptionsTest {
         @DisplayName("1.2. execute with external library exception and recovery from it")
         void recovery_handling_with_exception(CapturedOutput out) {
             AtomicReference<String> result = new AtomicReference<>();
-            should.assertThatCode(() -> result.set(useCases.surviveExternalLibraryException(-1).toString()))
+            should.assertThatCode(() -> result.set(useCases.warnUseCaseWorksDespiteException(-1).toString()))
                     .doesNotThrowAnyException();
             should.assertThat(out.getAll().split(System.lineSeparator()))
                     .usingComparatorForType(ExceptionsTest::findRegexInActual, String.class)
@@ -114,7 +114,7 @@ class ExceptionsTest {
         @DisplayName("2.1. execute without external library exception and with failure handling")
         void failure_handling_without_exception(CapturedOutput out) {
             AtomicReference<String> result = new AtomicReference<>();
-            should.assertThatCode(() -> result.set(useCases.failExternalLibraryException(1).toString()))
+            should.assertThatCode(() -> result.set(useCases.errorUseCaseFailsDueToException(1).toString()))
                     .doesNotThrowAnyException();
             should.assertThat(out.getAll().split(System.lineSeparator()))
                     .usingComparatorForType(ExceptionsTest::findRegexInActual, String.class)
@@ -130,7 +130,7 @@ class ExceptionsTest {
         @DisplayName("2.2. execute with external library exception and fail due to it")
         void failure_handling_with_exception(CapturedOutput out) {
             AtomicReference<String> result = new AtomicReference<>();
-            should.assertThatCode(() -> result.set(useCases.failExternalLibraryException(-1).toString()))
+            should.assertThatCode(() -> result.set(useCases.errorUseCaseFailsDueToException(-1).toString()))
                     .isInstanceOf(BusinessDomainException.class)
                     .hasMessageContaining("fail calling external library");
             should.assertThat(out.getAll().split(System.lineSeparator()))

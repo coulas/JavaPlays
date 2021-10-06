@@ -25,7 +25,7 @@ public class ExceptionEndPoint {
         log.debug("start processing throwEarlyCatchLate");
         String result;
         try {
-            result = "200 OK : " + useCases.failExternalLibraryException(-1).toString();
+            result = "200 OK : " + useCases.errorUseCaseFailsDueToException(-1).toString();
             log.info("throwEarlyCatchLate succeeded returns {}", result);
         } catch (Exception any) { // don't catch throwable to avoid catching fatal errors and still catch checked and unchecked exceptions
             log.error("throwEarlyCatchLate failed");
@@ -37,10 +37,10 @@ public class ExceptionEndPoint {
 
     @Logging
     public String endPointFailsHandledByFramework() {
-        return useCases.failExternalLibraryException(-1).toString();
+        return useCases.errorUseCaseFailsDueToException(-1).toString();
     }
     @Logging
     public String endPointSucceedsHandledByFramework() {
-        return useCases.failExternalLibraryException(1).toString();
+        return useCases.errorUseCaseFailsDueToException(1).toString();
     }
 }
